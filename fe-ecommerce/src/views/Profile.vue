@@ -117,6 +117,9 @@ const updateProfile = async () => {
   } catch (err) {
     alert("Failed to update profile.");
     console.error("Update Error:", err);
+    if (err.response && err.response.data) {
+      error.value = err.response.data.message || "Gagal memperbarui profil.";
+    }
   }
 };
 
