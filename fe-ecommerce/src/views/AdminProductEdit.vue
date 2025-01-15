@@ -2,7 +2,19 @@
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Edit Product</h1>
-    <div v-if="product">
+
+    <!-- Loading State -->
+    <div v-if="loading">
+      <p>Loading...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error">
+      <p class="text-red-500">{{ error }}</p>
+    </div>
+
+    <!-- Form Edit Produk -->
+    <div v-else-if="product">
       <form @submit.prevent="updateProduct" enctype="multipart/form-data">
         <div class="form-control mb-2">
           <label class="label">Name</label>
@@ -79,17 +91,11 @@
           <button @click="goBack" type="button" class="btn btn-secondary">
             Cancel
           </button>
-          <button type="submit" class="btn btn-primary" :disabled="loading">
-            {{ loading ? "Updating..." : "Update" }}
+          <button type="submit" class="btn btn-primary" :disabled="updating">
+            {{ updating ? "Updating..." : "Update" }}
           </button>
         </div>
       </form>
-    </div>
-    <div v-else-if="error">
-      <p class="text-red-500">{{ error }}</p>
-    </div>
-    <div v-else>
-      <p>Loading...</p>
     </div>
   </div>
 </template>
@@ -97,7 +103,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "@/services/api";
+import api from "@/services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -106,24 +112,33 @@ const product = ref(null);
 const categories = ref([]);
 const newImage = ref(null);
 const error = ref(null);
-const loading = ref(false);
+const loading = ref(true);
+const updating = ref(false);
 const defaultImage = "https://via.placeholder.com/150";
 
-// Fetch product data
+// Fungsi untuk mengambil data produk
 const fetchProduct = async () => {
   try {
-    const response = await axios.get(`/products/${route.params.id}`);
-    product.value = response.data;
+    const response = await api.get(`/products/${route.params.id}`);
+    console.log("Product Fetch Response:", response.data); // Debugging
+    if (response.data) {
+      // Sesuaikan dengan struktur respons API
+      product.value = response.data;
+    } else {
+      throw new Error("Product data is missing.");
+    }
   } catch (err) {
     console.error("Failed to fetch product:", err);
     error.value = err.response?.data?.message || "Failed to load product.";
+  } finally {
+    loading.value = false;
   }
 };
 
-// Fetch categories data
+// Fungsi untuk mengambil data kategori
 const fetchCategories = async () => {
   try {
-    const response = await axios.get("/categories");
+    const response = await api.get("/categories");
     categories.value = response.data;
   } catch (err) {
     console.error("Failed to fetch categories:", err);
@@ -131,7 +146,7 @@ const fetchCategories = async () => {
   }
 };
 
-// Handle image upload
+// Fungsi untuk menangani upload gambar baru
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -139,9 +154,9 @@ const handleImageUpload = (event) => {
   }
 };
 
-// Update product
+// Fungsi untuk memperbarui produk
 const updateProduct = async () => {
-  loading.value = true;
+  updating.value = true;
   const formData = new FormData();
   formData.append("name", product.value.name);
   formData.append("price", product.value.price);
@@ -152,33 +167,41 @@ const updateProduct = async () => {
     formData.append("image", newImage.value);
   }
 
+  // Tambahkan _method=PUT sesuai dengan yang Anda lakukan di Postman
+  formData.append("_method", "PUT");
+
+  console.log("Form Data:", {
+    name: product.value.name,
+    price: product.value.price,
+    description: product.value.description,
+    stock: product.value.stock,
+    category_id: product.value.category_id,
+    image: newImage.value ? newImage.value.name : "No Image",
+  });
+
   try {
-    const response = await axios.put(
-      `/products/${product.value.id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await api.post(`/products/${product.value.id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("Update Product Response:", response.data); // Debugging
     alert("Product updated successfully!");
-    product.value = response.data.product; // Update local product data
     router.push("/admin/products");
   } catch (err) {
     console.error("Failed to update product:", err);
     alert(err.response?.data?.message || "Failed to update product.");
   } finally {
-    loading.value = false;
+    updating.value = false;
   }
 };
 
-// Navigate back to products list
+// Fungsi untuk kembali ke daftar produk
 const goBack = () => {
   router.push("/admin/products");
 };
 
-// Initialize data on component mount
+// Inisialisasi data saat komponen dimuat
 onMounted(() => {
   fetchProduct();
   fetchCategories();

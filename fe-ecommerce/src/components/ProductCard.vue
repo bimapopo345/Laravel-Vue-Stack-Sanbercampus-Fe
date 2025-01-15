@@ -1,4 +1,3 @@
-<!-- src/components/ProductCard.vue -->
 <template>
   <div class="card bg-base-100 shadow-xl">
     <figure>
@@ -17,9 +16,12 @@
           Add to Cart
         </button>
         <div v-if="isAdmin" class="flex space-x-2">
-          <button @click="editProduct" class="btn btn-warning btn-sm">
+          <router-link
+            :to="`/admin/products/edit/${product.id}`"
+            class="btn btn-warning btn-sm"
+          >
             Edit
-          </button>
+          </router-link>
           <button @click="deleteProduct" class="btn btn-error btn-sm">
             Delete
           </button>
@@ -53,10 +55,6 @@ const router = useRouter();
 const addToCart = () => {
   cartStore.addItem(props.product);
   alert("Product added to cart!");
-};
-
-const editProduct = () => {
-  router.push(`/admin/products/edit/${props.product.id}`);
 };
 
 const deleteProduct = async () => {

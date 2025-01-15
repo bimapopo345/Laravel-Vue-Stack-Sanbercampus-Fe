@@ -65,7 +65,7 @@ const routes = [
   {
     path: "/admin/products/edit/:id",
     name: "AdminProductEdit",
-    component: AdminProductEdit,
+    component: () => import("@/views/AdminProductEdit.vue"),
     meta: { requiresAuth: true, isAdmin: true },
   },
   {

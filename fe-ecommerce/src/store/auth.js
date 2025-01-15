@@ -1,7 +1,6 @@
 // src/store/auth.js
-
 import { defineStore } from "pinia";
-import axios from "@/services/api";
+import api from "@/services/api";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -15,10 +14,10 @@ export const useAuthStore = defineStore("auth", {
   actions: {
     async login(credentials) {
       try {
-        const response = await axios.post("/login", credentials);
+        const response = await api.post("/login", credentials);
         this.token = response.data.access_token;
         localStorage.setItem("token", this.token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+        api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
         await this.fetchMe();
       } catch (error) {
         throw error;
@@ -26,7 +25,7 @@ export const useAuthStore = defineStore("auth", {
     },
     async register(data) {
       try {
-        const response = await axios.post("/register", data);
+        const response = await api.post("/register", data);
         return response;
       } catch (error) {
         throw error;
@@ -36,11 +35,11 @@ export const useAuthStore = defineStore("auth", {
       this.token = "";
       this.user = null;
       localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["Authorization"];
     },
     async fetchMe() {
       try {
-        const response = await axios.get("/me");
+        const response = await api.get("/me");
         this.user = response.data;
       } catch (error) {
         throw error;
