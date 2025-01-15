@@ -15,6 +15,8 @@ import CategoriesDetail from "@/views/CategoriesDetail.vue";
 import AdminCategories from "@/views/AdminCategories.vue";
 import AdminOrders from "@/views/AdminOrders.vue";
 import AdminProducts from "@/views/AdminProducts.vue";
+import AdminCategoryEdit from "@/views/AdminCategoryEdit.vue";
+import AdminProductEdit from "@/views/AdminProductEdit.vue";
 
 import { useAuthStore } from "@/store/auth";
 
@@ -61,9 +63,21 @@ const routes = [
     meta: { requiresAuth: true, isAdmin: true },
   },
   {
+    path: "/admin/products/edit/:id",
+    name: "AdminProductEdit",
+    component: AdminProductEdit,
+    meta: { requiresAuth: true, isAdmin: true },
+  },
+  {
     path: "/admin/categories",
     name: "AdminCategories",
     component: AdminCategories,
+    meta: { requiresAuth: true, isAdmin: true },
+  },
+  {
+    path: "/admin/categories/edit/:id",
+    name: "AdminCategoryEdit",
+    component: AdminCategoryEdit,
     meta: { requiresAuth: true, isAdmin: true },
   },
   {

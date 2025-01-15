@@ -64,7 +64,7 @@ const deleteProduct = async () => {
     try {
       await axios.delete(`/products/${props.product.id}`);
       alert("Product deleted successfully!");
-      emit("update");
+      emit("update"); // Emit event untuk refresh list
     } catch (error) {
       alert("Failed to delete product.");
       console.error(error);

@@ -10,7 +10,7 @@ export const useAuthStore = defineStore("auth", {
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.user?.role?.name === "admin", // Getter untuk mengecek admin
+    isAdmin: (state) => state.user?.role?.name === "admin",
   },
   actions: {
     async login(credentials) {
@@ -42,7 +42,6 @@ export const useAuthStore = defineStore("auth", {
       try {
         const response = await axios.get("/me");
         this.user = response.data;
-        console.log("Fetched user data:", this.user); // Untuk debugging
       } catch (error) {
         throw error;
       }

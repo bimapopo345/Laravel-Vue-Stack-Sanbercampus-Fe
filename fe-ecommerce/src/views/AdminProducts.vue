@@ -23,13 +23,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "@/services/api";
 import ProductCard from "@/components/ProductCard.vue";
 import ProductForm from "@/components/ProductForm.vue";
+import { useRoute } from "vue-router";
 
 const products = ref([]);
 const showCreateForm = ref(false);
+const route = useRoute();
 
 const fetchProducts = async () => {
   try {
@@ -39,6 +41,14 @@ const fetchProducts = async () => {
     console.error("Failed to fetch products:", error);
   }
 };
+
+// Watch for route changes to re-fetch products
+watch(
+  () => route.fullPath,
+  () => {
+    fetchProducts();
+  }
+);
 
 onMounted(() => {
   fetchProducts();

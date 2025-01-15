@@ -43,9 +43,11 @@
 import { ref, onMounted } from "vue";
 import axios from "@/services/api";
 import CategoryForm from "@/components/CategoryForm.vue";
+import { useRouter } from "vue-router";
 
 const categories = ref([]);
 const showCreateForm = ref(false);
+const router = useRouter();
 
 const fetchCategories = async () => {
   try {
@@ -70,8 +72,7 @@ const deleteCategory = async (id) => {
 };
 
 const editCategory = (category) => {
-  // Implementasi edit kategori (bisa menggunakan modal atau navigasi ke halaman edit)
-  alert("Edit feature not implemented yet.");
+  router.push(`/admin/categories/edit/${category.id}`);
 };
 
 onMounted(() => {
