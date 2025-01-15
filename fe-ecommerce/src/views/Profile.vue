@@ -101,7 +101,7 @@ const updateProfile = async () => {
   }
 
   try {
-    const response = await axios.put("/profile", formData, {
+    const response = await axios.post("/profile?_method=PUT", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
