@@ -1,4 +1,5 @@
 // src/router/index.js
+
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
@@ -10,6 +11,10 @@ import Orders from "@/views/Orders.vue";
 import Cart from "@/components/Cart.vue";
 import VerifyOtp from "@/views/VerifyOtp.vue";
 import CategoriesDetail from "@/views/CategoriesDetail.vue";
+
+import AdminCategories from "@/views/AdminCategories.vue";
+import AdminOrders from "@/views/AdminOrders.vue";
+import AdminProducts from "@/views/AdminProducts.vue";
 
 import { useAuthStore } from "@/store/auth";
 
@@ -48,7 +53,26 @@ const routes = [
     name: "CategoriesDetail",
     component: CategoriesDetail,
   },
-  // Tambahkan route lain sesuai kebutuhan
+  // Rute Admin
+  {
+    path: "/admin/products",
+    name: "AdminProducts",
+    component: AdminProducts,
+    meta: { requiresAuth: true, isAdmin: true },
+  },
+  {
+    path: "/admin/categories",
+    name: "AdminCategories",
+    component: AdminCategories,
+    meta: { requiresAuth: true, isAdmin: true },
+  },
+  {
+    path: "/admin/orders",
+    name: "AdminOrders",
+    component: AdminOrders,
+    meta: { requiresAuth: true, isAdmin: true },
+  },
+  // Tambahkan rute lain sesuai kebutuhan
 ];
 
 const router = createRouter({
@@ -60,11 +84,19 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
+  // Cek autentikasi
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: "Login" });
-  } else {
-    next();
+    return;
   }
+
+  // Cek admin
+  if (to.meta.isAdmin && !authStore.isAdmin) {
+    next({ name: "Home" });
+    return;
+  }
+
+  next();
 });
 
 export default router;

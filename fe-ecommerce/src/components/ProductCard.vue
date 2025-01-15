@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, defineEmits } from "vue";
 import { useCartStore } from "@/store/cart";
 import { useRouter } from "vue-router";
 import axios from "@/services/api";
@@ -43,6 +43,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["update"]);
+
 const defaultImage = "https://via.placeholder.com/150";
 
 const cartStore = useCartStore();
@@ -54,7 +56,6 @@ const addToCart = () => {
 };
 
 const editProduct = () => {
-  // Implementasi edit produk, misalnya navigasi ke halaman edit
   router.push(`/admin/products/edit/${props.product.id}`);
 };
 
@@ -63,7 +64,6 @@ const deleteProduct = async () => {
     try {
       await axios.delete(`/products/${props.product.id}`);
       alert("Product deleted successfully!");
-      // Emit event untuk memperbarui daftar produk
       emit("update");
     } catch (error) {
       alert("Failed to delete product.");
