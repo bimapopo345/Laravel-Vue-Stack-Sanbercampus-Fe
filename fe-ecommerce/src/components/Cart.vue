@@ -40,6 +40,7 @@
 import { computed } from "vue";
 import { useCartStore } from "@/store/cart";
 import { useRouter } from "vue-router";
+import axios from "@/services/api";
 
 const cartStore = useCartStore();
 const router = useRouter();
@@ -61,9 +62,38 @@ const removeItem = (item) => {
 
 const checkout = async () => {
   try {
-    await cartStore.checkout();
-    alert("Checkout successful!");
-    router.push("/orders");
+    // Data checkout yang akan dikirim ke backend
+    const payload = cartItems.value.map((item) => ({
+      idProduct: item.product.id,
+      price: item.product.price,
+      quantity: item.quantity,
+      name: item.product.name,
+    }));
+    console.log("Payload:", payload); // Tambahkan log ini untuk debugging
+
+    // Kirim data ke backend dan dapatkan snap token
+    const response = await axios.post("/checkout", payload);
+    const snapToken = response.data.snap_token;
+
+    // Integrasi dengan Midtrans Snap
+    window.snap.pay(snapToken, {
+      onSuccess: function (result) {
+        alert("Payment successful!");
+        cartStore.clearCart(); // Kosongkan cart setelah checkout
+        router.push("/orders"); // Redirect ke halaman pesanan
+      },
+      onPending: function (result) {
+        alert("Payment pending. Please complete the payment.");
+        console.log(result);
+      },
+      onError: function (result) {
+        alert("Payment failed. Please try again.");
+        console.error(result);
+      },
+      onClose: function () {
+        alert("Payment popup closed.");
+      },
+    });
   } catch (error) {
     alert("Checkout failed. Please try again.");
     console.error(error);
